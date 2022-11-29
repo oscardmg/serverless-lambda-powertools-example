@@ -1,0 +1,29 @@
+{
+  "name": "serverless-powertools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "serverless offline",
+    "deploy": "serverless deploy --verbose"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.109",
+    "esbuild": "^0.15.16",
+    "serverless": "^3.25.1",
+    "serverless-esbuild": "^1.33.2",
+    "serverless-offline": "^11.6.0",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^1.5.0",
+    "@aws-lambda-powertools/metrics": "^1.5.0",
+    "@aws-lambda-powertools/tracer": "^1.5.0",
+    "@aws-sdk/client-dynamodb": "^3.218.0",
+    "@aws-sdk/lib-dynamodb": "^3.218.0",
+    "@middy/core": "^4.0.0"
+  }
+}

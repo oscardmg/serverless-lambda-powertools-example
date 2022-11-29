@@ -1,0 +1,90 @@
+service: serverless-powertools
+
+frameworkVersion: "3"
+
+useDotenv: true
+
+package:
+  #individually: true
+  excludeDevDependencies: true
+  patterns:
+    - '!./**'
+    - './node_modules/@aws-lambda-powertools'  
+    - './node_modules/@middy'  
+    #- '!node_modules/**'
+    #- 'node_modules/node-fetch/**'
+
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    target: node16
+    platform: node
+    sourcemap: true
+    exclude: ['aws-sdk']
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: ${opt:stage,'dev'}
+  region: ${opt:region,'us-east-1'}
+  architecture: arm64
+  tracing:
+    apiGateway: true
+    lambda: true
+  apiName: serverless-powertools
+  deploymentBucket:
+    name: odmg-serverless-deploy
+  memorySize: 128
+
+  environment:
+    SAMPLE_TABLE: !Ref myTable
+    REGION: ${self:provider.region}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "Fn::GetAtt": [myTable, Arn]
+
+
+functions:
+  getAllItemsFunction:
+    handler: src/functions/get-all-items.handler
+    events:
+      - httpApi: GET /
+    environment:
+      POWERTOOLS_SERVICE_NAME: getAllItems
+      POWERTOOLS_METRICS_NAMESPACE: PowertoolsExample
+      LOG_LEVEL: Debug  
+
+plugins:
+  - serverless-offline
+  - serverless-esbuild
+
+
+resources:
+  Resources:
+    myTable:
+      Type: AWS::DynamoDB::Table
+      #DeletionPolicy: Retain
+      Properties:
+        TableName: orders
+        BillingMode: PROVISIONED
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1  
